@@ -6,7 +6,7 @@ import ed25519
 import msgpack
 import requests
 import ubirch
-from lib.ubirch_protocol import Protocol
+from ubirch_protocol import Protocol
 
 
 class UbirchClient(Protocol):

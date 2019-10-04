@@ -54,6 +54,7 @@ headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
 
+
 keystore = ubirch.KeyStore(UUID(counterId).hex + ".jks", "demo-keystore")
 
 ubirch = UbirchClient(UUID(counterId), keystore, apiConfig['keyService'], apiConfig['niomon'], headers)
@@ -100,7 +101,7 @@ while 1:
                           )
 
         if (r.status_code == 200):
-            print("send data successfully, send certificate")
+            print("sent data successfully, send certificate ...")
             ubirch.send(dataJson)
         else:
             print("error: {}".format(r.status_code))
