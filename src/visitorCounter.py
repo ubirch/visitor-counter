@@ -4,7 +4,12 @@ import sys
 import argparse
 import logging
 
+from uuid import UUID
 import requests
+import ubirch
+
+from ubirch_client import UbirchClient
+
 
 log_levels = {
     'debug': logging.DEBUG,
@@ -31,13 +36,13 @@ parser.add_argument('-pw', '--password',
 
 args = parser.parse_args()
 
-counterId = args.counterid
+counterId = UUID(args.counterid)
 password = args.password
 env = args.enviroment.lower()
 
 apiConfig = {
     "password": password,
-    "keyService": "https://key.{}.ubirch.com/api/keyService/v1/".format(env),
+    "keyService": "https://key.{}.ubirch.com/api/keyService/v1/pubkey/mpack".format(env),
     "niomon": "https://niomon.{}.ubirch.com/".format(env),
     "dataMsgPack": "https://data.{}.ubirch.com/v1/msgPack".format(env),
     "dataJson": "https://data.{}.ubirch.com/v1/json".format(env)
@@ -50,6 +55,11 @@ headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Hardware-Id": counterId,
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
+
+
+keystore = ubirch.KeyStore(counterId.hex + ".jks", "demo-keystore")
+
+ubirch = UbirchClient(keystore, apiConfig['keyService'], counterId)
 
 while 1:
     try:
@@ -91,8 +101,8 @@ while 1:
         #                   timeout=5,
         #                   json=dataJson
         #                   )
-
-        if (r.status_code == 200):
-            print("send data successfully")
-        else:
-            print("error: {}".format(r.status_code))
+        #
+        # if (r.status_code == 200):
+        #     print("send data successfully")
+        # else:
+        #     print("error: {}".format(r.status_code))
