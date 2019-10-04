@@ -5,21 +5,21 @@ function usage {
     exit 1
 }
 
-if [[ -z $1 ]]; then
+if [[ ! -z $1 ]]; then
     ENV=$1
     shift
 else
     usage
 fi
 
-if [[ -z $1 ]]; then
+if [[ ! -z $1 ]]; then
     CID=$1
     shift
 else
     usage
 fi
 
-if [[ -z $1 ]]; then
+if [[ ! -z $1 ]]; then
     PWD=$1
     shift
 else
