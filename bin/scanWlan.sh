@@ -27,6 +27,6 @@ fi
 
 EXPORTER="python3 ./src/visitorCounter.py -env $ENV -cid $CID -pw $PWD"
 
-airmon-ng start wlan1
+sudo airmon-ng start wlan1
 #airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 --output-format csv --write /tmp/crackdump --write-interval 10 wlan1
-airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 wlan1 |`${EXPORTER}`
+sudo airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 wlan1 |`${EXPORTER}`
