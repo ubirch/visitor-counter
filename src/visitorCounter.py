@@ -4,6 +4,7 @@ import time
 import sys
 import argparse
 import logging
+from requests.utils import requote_uri
 
 import requests
 
@@ -52,6 +53,16 @@ headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
 
+def lookupMac(mac):
+    url = requote_uri("https://api.macvendors.com/{}".format(mac))
+    r = requests.get(url)
+    # just to avoid blacklisting
+    time.sleep(1)
+    if (r.status_code < 300):
+        return r.text
+    else:
+        return "unknown"
+
 while 1:
     try:
         line = sys.stdin.readline().rstrip('\n').rstrip('\r')
@@ -76,7 +87,7 @@ while 1:
             "data": {
                 "msg_type": 66,
                 "mac": mac,
-                "manufacturer": manufacturer,
+                "manufacturer": lookupMac(mac),
                 "firstTime": firstTime,
                 "lastTime": lastTime,
                 "power": power,
