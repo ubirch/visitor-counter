@@ -105,3 +105,4 @@ venv.bak/
 
 .idea
 visitor-counter.iml
+data/*

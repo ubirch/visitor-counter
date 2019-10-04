@@ -1,9 +1,13 @@
 import argparse
 import base64
 import datetime
+import time
+import sys
+import argparse
 import logging
 import sys
 from uuid import UUID
+from requests.utils import requote_uri
 
 import requests
 import ubirch
@@ -54,6 +58,15 @@ headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
 
+def lookupMac(mac):
+    url = requote_uri("https://api.macvendors.com/{}".format(mac))
+    r = requests.get(url)
+    # just to avoid blacklisting
+    time.sleep(1)
+    if (r.status_code < 300):
+        return r.text
+    else:
+        return "unknown"
 
 keystore = ubirch.KeyStore(UUID(counterId).hex + ".jks", "demo-keystore")
 
@@ -77,12 +90,14 @@ while 1:
         probedESSIDs = splitted[6].strip()
         dataJson = {
             "uuid": counterId,
-            "msg_type": 1,
-            "timestamp": datetime.datetime.now().isoformat(),
+            "msg_type": 66,
+            "timestamp": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
             # "timestamp": int(round(time.time())),
             "data": {
+                "msg_type": 66,
                 "mac": mac,
-                "manufacturer": manufacturer,
+                "manId": manufacturer,
+                "manName": lookupMac(mac),
                 "firstTime": firstTime,
                 "lastTime": lastTime,
                 "power": power,
@@ -92,16 +107,16 @@ while 1:
             }
         }
 
-        # print(dataJson)
+        print(dataJson)
 
-        r = requests.post(url,
-                          headers=headers,
-                          timeout=5,
-                          json=dataJson
-                          )
+        # r = requests.post(url,
+        #                   headers=headers,
+        #                   timeout=5,
+        #                   json=dataJson
+        #                   )
 
         if (r.status_code == 200):
-            print("sent data successfully, send certificate ...")
+            print("send data successfully")
             ubirch.send(dataJson)
         else:
             print("error: {}".format(r.status_code))
