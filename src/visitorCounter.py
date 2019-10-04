@@ -87,7 +87,8 @@ while 1:
             "data": {
                 "msg_type": 66,
                 "mac": mac,
-                "manufacturer": lookupMac(mac),
+                "manId": manufacturer,
+                "manName": lookupMac(mac),
                 "firstTime": firstTime,
                 "lastTime": lastTime,
                 "power": power,
