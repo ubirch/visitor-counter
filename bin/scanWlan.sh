@@ -2,6 +2,7 @@
 
 function usage {
     echo $0 ENV CID PWD
+    exit 1
 }
 
 if [[ -z $1 ]]; then
@@ -27,6 +28,6 @@ fi
 
 EXPORTER="python3 ./src/visitorCounter.py -env $ENV -cid $CID -pw $PWD"
 
-sudo airmon-ng start wlan1
+`sudo airmon-ng start wlan1`
 #airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 --output-format csv --write /tmp/crackdump --write-interval 10 wlan1
-sudo airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 wlan1 |`${EXPORTER}`
+echo `sudo airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 wlan1|${EXPORTER}`
