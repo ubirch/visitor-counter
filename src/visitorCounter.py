@@ -1,5 +1,6 @@
 import base64
 import datetime
+import time
 import sys
 import argparse
 import logging
@@ -69,10 +70,11 @@ while 1:
         probedESSIDs = splitted[6].strip()
         dataJson = {
             "uuid": counterId,
-            "msg_type": 1,
-            "timestamp": datetime.datetime.now().isoformat(),
+            "msg_type": 66,
+            "timestamp": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
             # "timestamp": int(round(time.time())),
             "data": {
+                "msg_type": 66,
                 "mac": mac,
                 "manufacturer": manufacturer,
                 "firstTime": firstTime,
@@ -86,11 +88,11 @@ while 1:
 
         print(dataJson)
 
-        # r = requests.post(url,
-        #                   headers=headers,
-        #                   timeout=5,
-        #                   json=dataJson
-        #                   )
+        r = requests.post(url,
+                          headers=headers,
+                          timeout=5,
+                          json=dataJson
+                          )
 
         if (r.status_code == 200):
             print("send data successfully")
