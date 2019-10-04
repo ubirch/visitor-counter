@@ -1,15 +1,13 @@
+import argparse
 import base64
 import datetime
-import sys
-import argparse
 import logging
-
+import sys
 from uuid import UUID
+
 import requests
 import ubirch
-
 from ubirch_client import UbirchClient
-
 
 log_levels = {
     'debug': logging.DEBUG,
@@ -36,7 +34,7 @@ parser.add_argument('-pw', '--password',
 
 args = parser.parse_args()
 
-counterId = UUID(args.counterid)
+counterId = args.counterid
 password = args.password
 env = args.enviroment.lower()
 
@@ -56,10 +54,9 @@ headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
 
+keystore = ubirch.KeyStore(UUID(counterId).hex + ".jks", "demo-keystore")
 
-keystore = ubirch.KeyStore(counterId.hex + ".jks", "demo-keystore")
-
-ubirch = UbirchClient(keystore, apiConfig['keyService'], counterId)
+ubirch = UbirchClient(UUID(counterId), keystore, apiConfig['keyService'], apiConfig['niomon'], headers)
 
 while 1:
     try:
@@ -94,15 +91,16 @@ while 1:
             }
         }
 
-        print(dataJson)
+        # print(dataJson)
 
-        # r = requests.post(url,
-        #                   headers=headers,
-        #                   timeout=5,
-        #                   json=dataJson
-        #                   )
-        #
-        # if (r.status_code == 200):
-        #     print("send data successfully")
-        # else:
-        #     print("error: {}".format(r.status_code))
+        r = requests.post(url,
+                          headers=headers,
+                          timeout=5,
+                          json=dataJson
+                          )
+
+        if (r.status_code == 200):
+            print("send data successfully, send certificate")
+            ubirch.send(dataJson)
+        else:
+            print("error: {}".format(r.status_code))
