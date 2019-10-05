@@ -8,6 +8,10 @@ macs = ["06:D6:AA:79:5C:AB",
         "98:DE:D0:5C:67:66",
         "46:67:51:48:F2:A9"]
 
+macUtil.init("./macsdb.json")
+
 for mac in macs:
     name = macUtil.lookupMac(mac)
+    print(macUtil.hashedMac(mac))
     print(name)
+

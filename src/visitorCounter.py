@@ -99,6 +99,7 @@ while 1:
             "data": {
                 "msg_type": 66,
                 "mac": mac,
+                "macHashed": macUtil.hashedMac(mac),
                 "manId": manId,
                 "manName": manName,
                 "firstTime": firstTime,
