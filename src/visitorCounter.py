@@ -1,24 +1,17 @@
 import argparse
 import base64
 import datetime
-import time
-import sys
-import argparse
 import logging
+import os
 import sys
+import time
 from uuid import UUID
-from requests.utils import requote_uri
 
 import requests
 import ubirch
-from ubirch_client import UbirchClient
+from requests.utils import requote_uri
 
-log_levels = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warn': logging.WARN,
-    'error': logging.ERROR,
-}
+from ubirch_client import UbirchClient
 
 parser = argparse.ArgumentParser(description='visitor counter')
 parser.add_argument('-env', '--enviroment',
@@ -36,11 +29,20 @@ parser.add_argument('-pw', '--password',
                     metavar="PWD",
                     required=True)
 
+parser.add_argument("-d", "--debug",
+                    help="enable debug logging level (info, warn, debug)",
+                    metavar="LOGLEVEL",
+                    default="info")
+
 args = parser.parse_args()
 
 counterId = args.counterid
 password = args.password
 env = args.enviroment.lower()
+
+loglevel = args.debug.upper()
+logging.basicConfig(format='%(asctime)s %(name)20.20s %(levelname)-8.8s %(message)s', level=loglevel)
+logger = logging.getLogger(__name__)
 
 apiConfig = {
     "password": password,
@@ -58,6 +60,7 @@ headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
 
+
 def lookupMac(mac):
     url = requote_uri("https://api.macvendors.com/{}".format(mac))
     r = requests.get(url)
@@ -67,6 +70,7 @@ def lookupMac(mac):
         return r.text
     else:
         return "unknown"
+
 
 keystore = ubirch.KeyStore(UUID(counterId).hex + ".jks", "demo-keystore")
 
@@ -107,7 +111,7 @@ while 1:
             }
         }
 
-        print(dataJson)
+        logger.info(dataJson)
 
         # r = requests.post(url,
         #                   headers=headers,

@@ -1,20 +1,19 @@
+import base64
 import binascii
 import json
+from datetime import datetime
 from uuid import UUID
 
 import ed25519
 import msgpack
 import requests
 import ubirch
-from ubirch_protocol import Protocol
 
-
-class UbirchClient(Protocol):
+class UbirchClient(ubirch.Protocol):
     PUB_DEV = ed25519.VerifyingKey(
         b'\xa2\x40\x3b\x92\xbc\x9a\xdd\x36\x5b\x3c\xd1\x2f\xf1\x20\xd0\x20\x64\x7f\x84\xea\x69\x83\xf9\x8b\xc4\xc8\x7e\x0f\x4b\xe8\xcd\x66')
 
-    def __init__(self, uuid: UUID, key_store: ubirch.KeyStore, register_url: str, update_url: str,
-                 headers: dict) -> None:
+    def __init__(self, uuid: UUID, key_store: ubirch.KeyStore, register_url: str, update_url: str, headers: dict) -> None:
         super().__init__()
         self.__uuid = uuid
         self.__ks = key_store
@@ -37,10 +36,27 @@ class UbirchClient(Protocol):
         if not self.__ks.exists_signing_key(self.__uuid):
             self.__ks.create_ed25519_keypair(self.__uuid)
 
-        keyreg_upp = self.message_signed(self.__uuid, 0x01, self.__ks.get_certificate(self.__uuid), legacy=True)
-        r = requests.post(self.__register_url,
-                          headers={'Content-Type': 'application/octet-stream'},
-                          data=keyreg_upp)
+        # keyreg_upp = self.message_signed(self.__uuid, 0x01, self.__ks.get_certificate(self.__uuid), legacy=True)
+        # r = requests.post(self.__register_url,
+        #                   headers={'Content-Type': 'application/octet-stream'},
+        #                   data=keyreg_upp)
+
+        # TODO: this is here, because the key server does not yet understand ubirch-protocol v2
+        pubKeyInfo = self.__ks.get_certificate(self.__uuid)
+        # create a json key registration request
+        pubKeyInfo['hwDeviceId'] = str(self.__uuid)
+        pubKeyInfo['pubKey'] = base64.b64encode(pubKeyInfo['pubKey']).decode()
+        pubKeyInfo['pubKeyId'] = base64.b64encode(pubKeyInfo['pubKeyId']).decode()
+        pubKeyInfo['created'] = str(datetime.utcfromtimestamp(pubKeyInfo['created']).isoformat() + ".000Z")
+        pubKeyInfo['validNotAfter'] = str(datetime.utcfromtimestamp(pubKeyInfo['validNotAfter']).isoformat() + ".000Z")
+        pubKeyInfo['validNotBefore'] = str(datetime.utcfromtimestamp(pubKeyInfo['validNotBefore']).isoformat() + ".000Z")
+
+        signable_json = json.dumps(pubKeyInfo, separators=(',', ':')).encode()
+        # logger.info(signable_json.decode())
+        signed_message = self._sign(self.__uuid, signable_json)
+        signature = base64.b64encode(signed_message).decode()
+        pubKeyRegMsg = {'pubKeyInfo': pubKeyInfo, 'signature': signature}
+        r = requests.post(self.__register_url, json=pubKeyRegMsg)
 
         if r.status_code == 200:
             r.close()
