@@ -40,7 +40,7 @@ env = args.enviroment.lower()
 
 loglevel = args.debug.upper()
 logging.basicConfig(format='%(asctime)s %(name)20.20s %(levelname)-8.8s %(message)s', level=loglevel)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("visitorCounter")
 
 apiConfig = {
     "password": password,
@@ -74,6 +74,8 @@ keystore = ubirch.KeyStore(UUID(counterId).hex + ".jks", "demo-keystore")
 
 ubirch = UbirchClient(UUID(counterId), keystore, apiConfig['keyService'], apiConfig['niomon'], headers)
 
+
+
 while 1:
     try:
         line = sys.stdin.readline().rstrip('\n').rstrip('\r')
@@ -83,7 +85,8 @@ while 1:
     splitted = line.split(",")
     if ((len(splitted) == 7) and (splitted[0] != 'Station MAC')):
         mac = splitted[0].strip()
-        manufacturer = mac[:8]
+        manId = mac[:8]
+        manName = lookupMac(mac)
         firstTime = splitted[1].strip()
         lastTime = splitted[2].strip()
         power = int(splitted[3].strip())
@@ -98,8 +101,8 @@ while 1:
             "data": {
                 "msg_type": 66,
                 "mac": mac,
-                "manId": manufacturer,
-                "manName": lookupMac(mac),
+                "manId": manId,
+                "manName": manName,
                 "firstTime": firstTime,
                 "lastTime": lastTime,
                 "power": power,
@@ -117,8 +120,8 @@ while 1:
                           json=dataJson
                           )
 
-        if (r.status_code == 200):
-            print("send data successfully")
+        if (r.status_code < 300):
+            logger.info("send data to data service successfully")
             ubirch.send(dataJson)
         else:
-            print("error: {}".format(r.status_code))
+            logger.error("could not send data to data service, got http status {} with error message {}".format(r.status_code, r.text))
