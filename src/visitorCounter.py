@@ -2,7 +2,6 @@ import argparse
 import base64
 import datetime
 import logging
-import os
 import sys
 import time
 from uuid import UUID
@@ -10,7 +9,6 @@ from uuid import UUID
 import requests
 import ubirch
 from requests.utils import requote_uri
-
 from ubirch_client import UbirchClient
 
 parser = argparse.ArgumentParser(description='visitor counter')
@@ -46,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 apiConfig = {
     "password": password,
-    "keyService": "https://key.{}.ubirch.com/api/keyService/v1/pubkey/mpack".format(env),
+    "keyService": "https://key.{}.ubirch.com/api/keyService/v1/pubkey".format(env),
     "niomon": "https://niomon.{}.ubirch.com/".format(env),
     "dataMsgPack": "https://data.{}.ubirch.com/v1/msgPack".format(env),
     "dataJson": "https://data.{}.ubirch.com/v1/json".format(env)
@@ -113,11 +111,11 @@ while 1:
 
         logger.info(dataJson)
 
-        # r = requests.post(url,
-        #                   headers=headers,
-        #                   timeout=5,
-        #                   json=dataJson
-        #                   )
+        r = requests.post(url,
+                          headers=headers,
+                          timeout=5,
+                          json=dataJson
+                          )
 
         if (r.status_code == 200):
             print("send data successfully")
