@@ -2,14 +2,15 @@ import argparse
 import base64
 import datetime
 import logging
+import requests
 import sys
-import time
+import ubirch
+
 from uuid import UUID
 
-import requests
-import ubirch
-from requests.utils import requote_uri
 from ubirch_client import UbirchClient
+
+import macUtil
 
 parser = argparse.ArgumentParser(description='visitor counter')
 parser.add_argument('-env', '--enviroment',
@@ -32,11 +33,17 @@ parser.add_argument("-d", "--debug",
                     metavar="LOGLEVEL",
                     default="info")
 
+parser.add_argument("-db", "--databasepath",
+                    help="db path to chache manufacturer locally",
+                    metavar="DBPATH",
+                    default="./macDb.json")
+
 args = parser.parse_args()
 
 counterId = args.counterid
 password = args.password
 env = args.enviroment.lower()
+dbPath = args.databasepath
 
 loglevel = args.debug.upper()
 logging.basicConfig(format='%(asctime)s %(name)20.20s %(levelname)-8.8s %(message)s', level=loglevel)
@@ -58,23 +65,11 @@ headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
 
-
-def lookupMac(mac):
-    url = requote_uri("https://api.macvendors.com/{}".format(mac))
-    r = requests.get(url)
-    # just to avoid blacklisting
-    time.sleep(1)
-    if (r.status_code < 300):
-        return r.text
-    else:
-        return "unknown"
-
-
 keystore = ubirch.KeyStore(UUID(counterId).hex + ".jks", "demo-keystore")
 
 ubirch = UbirchClient(UUID(counterId), keystore, apiConfig['keyService'], apiConfig['niomon'], headers)
 
-
+macUtil.init(dbPath)
 
 while 1:
     try:
@@ -85,18 +80,21 @@ while 1:
     splitted = line.split(",")
     if ((len(splitted) == 7) and (splitted[0] != 'Station MAC')):
         mac = splitted[0].strip()
-        manId = mac[:8]
-        manName = lookupMac(mac)
+        manId = macUtil.getMacManufacturerId(mac)
+        manName = macUtil.lookupMac(mac)
         firstTime = splitted[1].strip()
         lastTime = splitted[2].strip()
         power = int(splitted[3].strip())
         packetsCount = int(splitted[4].strip())
         BSSID = splitted[5].strip()
         probedESSIDs = splitted[6].strip()
+
+        timestamp =datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        # timestamp = datetime.datetime.utcnow().isoformat()
         dataJson = {
             "uuid": counterId,
             "msg_type": 66,
-            "timestamp": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
+            "timestamp": timestamp,
             # "timestamp": int(round(time.time())),
             "data": {
                 "msg_type": 66,
@@ -124,4 +122,6 @@ while 1:
             logger.info("send data to data service successfully")
             ubirch.send(dataJson)
         else:
-            logger.error("could not send data to data service, got http status {} with error message {}".format(r.status_code, r.text))
+            logger.error(
+                "could not send data to data service, got http status {} with error message {}".format(r.status_code,
+                                                                                                       r.text))
