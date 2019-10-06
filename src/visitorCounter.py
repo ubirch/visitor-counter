@@ -115,7 +115,7 @@ while 1:
 
         r = requests.post(url,
                           headers=headers,
-                          timeout=5,
+                          timeout=20,
                           json=dataJson
                           )
 
