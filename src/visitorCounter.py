@@ -79,6 +79,7 @@ while 1:
 
     splitted = line.split(",")
     if ((len(splitted) == 7) and (splitted[0] != 'Station MAC')):
+        print("current input: {}".format(line))
         mac = splitted[0].strip()
         manId = macUtil.getMacManufacturerId(mac)
         manName = macUtil.lookupMac(mac)
