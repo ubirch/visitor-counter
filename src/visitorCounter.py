@@ -77,53 +77,53 @@ while 1:
     except KeyboardInterrupt:
         break
 
-    splitted = line.split(",")
-    if ((len(splitted) == 7) and (splitted[0] != 'Station MAC')):
-        print("current input: {}".format(line))
-        mac = splitted[0].strip()
-        manId = macUtil.getMacManufacturerId(mac)
-        manName = macUtil.lookupMac(mac)
-        firstTime = splitted[1].strip()
-        lastTime = splitted[2].strip()
-        power = int(splitted[3].strip())
-        packetsCount = int(splitted[4].strip())
-        BSSID = splitted[5].strip()
-        probedESSIDs = splitted[6].strip()
+    try:
+            splitted = line.split(",")
+            if ((len(splitted) == 7) and (splitted[0] != 'Station MAC')):
+                mac = splitted[0].strip()
+                manId = macUtil.getMacManufacturerId(mac)
+                manName = macUtil.lookupMac(mac)
+                firstTime = splitted[1].strip()
+                lastTime = splitted[2].strip()
+                power = int(splitted[3].strip())
+                packetsCount = int(splitted[4].strip())
+                BSSID = splitted[5].strip()
+                probedESSIDs = splitted[6].strip()
 
-        timestamp =datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        # timestamp = datetime.datetime.utcnow().isoformat()
-        dataJson = {
-            "uuid": counterId,
-            "msg_type": 66,
-            "timestamp": timestamp,
-            # "timestamp": int(round(time.time())),
-            "data": {
-                "msg_type": 66,
-                "mac": mac,
-                "macHashed": macUtil.hashedMac(mac),
-                "manId": manId,
-                "manName": manName,
-                "firstTime": firstTime,
-                "lastTime": lastTime,
-                "power": power,
-                "packetsCount": packetsCount,
-                "BSSID": BSSID,
-                "probedESSIDs": probedESSIDs
-            }
-        }
+                timestamp =datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                # timestamp = datetime.datetime.utcnow().isoformat()
+                dataJson = {
+                    "uuid": counterId,
+                    "msg_type": 66,
+                    "timestamp": timestamp,
+                    # "timestamp": int(round(time.time())),
+                    "data": {
+                        "msg_type": 66,
+                        "mac": mac,
+                        "macHashed": macUtil.hashedMac(mac),
+                        "manId": manId,
+                        "manName": manName,
+                        "firstTime": firstTime,
+                        "lastTime": lastTime,
+                        "power": power,
+                        "packetsCount": packetsCount,
+                        "BSSID": BSSID,
+                        "probedESSIDs": probedESSIDs
+                    }
+                }
 
-        logger.info(dataJson)
+                logger.info(dataJson)
 
-        r = requests.post(url,
-                          headers=headers,
-                          timeout=20,
-                          json=dataJson
-                          )
+                r = requests.post(url,
+                                  headers=headers,
+                                  timeout=20,
+                                  json=dataJson
+                                  )
 
-        if (r.status_code < 300):
-            logger.info("send data to data service successfully")
-            ubirch.send(dataJson)
-        else:
-            logger.error(
-                "could not send data to data service, got http status {} with error message {}".format(r.status_code,
-                                                                                                       r.text))
+                if (r.status_code < 300):
+                    logger.info("send data to data service successfully")
+                    ubirch.send(dataJson)
+                else:
+                    logger.error("could not send data to data service, got http status {} with error message {}".format(r.status_code,r.text))
+        except:
+            logger.error("could not prcess data: {}".format(line))
