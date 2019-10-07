@@ -28,4 +28,5 @@ fi
 
 DATAFILE=/tmp/crackdump-01.csv
 
-tail -f python3 ./src/visitorCounter.py -env $ENV -cid $CID -pw $PWD
+cd src
+tail -f python3 visitorCounter.py -env $ENV -cid $CID -pw $PWD
