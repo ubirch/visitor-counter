@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function usage {
-    echo $0 ENV CID PWD
+    echo $0 ENV
     exit 1
 }
 
@@ -12,22 +12,8 @@ else
     usage
 fi
 
-if [[ ! -z $1 ]]; then
-    CID=$1
-    shift
-else
-    usage
-fi
+DATAFILEPREFIX=/tmp/crackdump*
+rm ${DATAFILEPREFIX}*
 
-if [[ ! -z $1 ]]; then
-    PWD=$1
-    shift
-else
-    usage
-fi
-
-EXPORTER="python3 ./src/visitorCounter.py -env $ENV -cid $CID -pw $PWD"
-
-`sudo airmon-ng start wlan1`
-#airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 --output-format csv --write /tmp/crackdump --write-interval 10 wlan1
-echo `sudo airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 wlan1|${EXPORTER}`
+sudo airmon-ng start wlan1
+sudo airodump-ng --uptime --manufacturer --showack --beacons --berlin 20 --output-format csv --write /tmp/crackdump --write-interval 10 wlan1
