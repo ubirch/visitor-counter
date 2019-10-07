@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function usage {
-    echo $0 ENV
+    echo $0 ENV CID PW
     exit 1
 }
 
