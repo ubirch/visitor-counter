@@ -1,17 +1,5 @@
 #!/usr/bin/env bash
 
-function usage {
-    echo $0 ENV
-    exit 1
-}
-
-if [[ ! -z $1 ]]; then
-    ENV=$1
-    shift
-else
-    usage
-fi
-
 DATAFILEPREFIX=/tmp/crackdump*
 rm ${DATAFILEPREFIX}*
 
