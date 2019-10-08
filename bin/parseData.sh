@@ -28,5 +28,7 @@ fi
 
 DATAFILE=/tmp/crackdump-01.csv
 
+. ./env/bin/activate
+
 cd src
-tail -f python3 visitorCounter.py -env $ENV -cid $CID -pw $PWD
+tail -f python3 visitorCounter.py -env $ENV -cid $CID -pw $PWD -db ../macsdb.json
