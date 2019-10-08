@@ -24,7 +24,7 @@ parser.add_argument('-cid', '--counterid',
                     required=True)
 
 parser.add_argument('-pw', '--password',
-                    help="ubirch auth pathword of current counter device",
+                    help="ubirch auth password of current counter device",
                     metavar="PWD",
                     required=True)
 
@@ -58,12 +58,13 @@ apiConfig = {
 }
 
 url = apiConfig["dataJson"]
-passwordB64 = base64.encodebytes(bytes(password, "UTF-8")).decode("utf-8").rstrip('\n')
-
+passwordB64 = base64.b64encode(bytes(password, "UTF-8")).decode("ascii").rstrip('\n')
 headers = {"X-Ubirch-Auth-Type": "ubirch",
            "X-Ubirch-Hardware-Id": counterId,
            "X-Ubirch-Credential": passwordB64,
            "Content-Type": "application/json"}
+logger.info("current password: {}".format(password))
+logger.info("current HTTP headers: {}".format(headers))
 
 keystore = ubirch.KeyStore(UUID(counterId).hex + ".jks", "demo-keystore")
 
@@ -89,9 +90,7 @@ while 1:
             packetsCount = int(splitted[4].strip())
             BSSID = splitted[5].strip()
             probedESSIDs = splitted[6].strip()
-
             timestamp =datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-            # timestamp = datetime.datetime.utcnow().isoformat()
             dataJson = {
                 "uuid": counterId,
                 "msg_type": 66,
