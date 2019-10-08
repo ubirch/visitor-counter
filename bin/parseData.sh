@@ -26,9 +26,13 @@ else
     usage
 fi
 
-DATAFILE=/tmp/crackdump-01.csv
+if [[ -f "../data/crackdump-01.csv" ]]; then
+    DATAFILE=../data/crackdump-01.csv
+else
+    DATAFILE=/tmp/crackdump-01.csv
+fi
 
-. ./env/bin/activate
+. ./.venv/bin/activate
 
 cd src
-tail -f python3 visitorCounter.py -env $ENV -cid $CID -pw $PWD -db ../macsdb.json
+tail -f ${DATAFILE}|python3 visitorCounter.py -env $ENV -cid $CID -pw $PWD -db ../macsdb/macsdb.json
