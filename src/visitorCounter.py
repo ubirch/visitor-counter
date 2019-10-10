@@ -36,7 +36,7 @@ parser.add_argument("-log", "--loglevel",
 parser.add_argument("-db", "--databasepath",
                     help="db path to chache manufacturer locally",
                     metavar="DBPATH",
-                    default="./macDb.json")
+                    default="./macsDb.json")
 
 parser.add_argument("-dry", "--dryrun",
                     help="set to true run without posting any data",
