@@ -208,6 +208,7 @@ while 1:
             postJsonData(jsonData)
         else:
             logger.debug("current jsonData: {}".format(json.dumps(jsonData, indent=4, sort_keys=True)))
+
     except KeyboardInterrupt:
         break
     except:
