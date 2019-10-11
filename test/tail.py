@@ -1,9 +1,17 @@
 
 import subprocess
 
-filename = "/tmp/crackdump-01.csv"
-f = subprocess.Popen(['tail','-F',filename], \
-                     stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-while True:
-    line = f.stdout.readline()
-    print(line.decode("ascii"))
+filename = "../data/crackdump-02.csv"
+
+def filterLine(line):
+    filteredLine = ""
+    for c in line:
+        if(c >= ' ' and c <= '~'):
+            filteredLine = filteredLine + c
+    return filteredLine
+
+with open(filename, 'r') as reader:
+    for line in reader.readlines():
+        fline = filterLine(line)
+        if(len(fline)>0):
+            print(fline)

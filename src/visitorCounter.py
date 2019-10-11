@@ -166,10 +166,11 @@ def storeProbedEssids(counterId, probedEssids):
             "timestamp": timestamp,
             "data": {
                 "msg_type": 68,
-                "probedEssid" : pEssid.strip()
+                "probedEssid": pEssid.strip()
             }
         }
         postJsonData(jsonData)
+
 
 def postJsonData(jsonData):
     global headers
@@ -188,9 +189,19 @@ def postJsonData(jsonData):
         logger.error("could not send data to data service, got http status {} with error message {}".format(
             r.status_code, r.text))
 
+
+def filterLine(line):
+    filteredLine = ""
+    for c in line:
+        if (c >= ' ' and c <= '~'):
+            filteredLine = filteredLine + c
+    return filteredLine
+
+
 while 1:
     try:
-        line = sys.stdin.readline().rstrip('\n').rstrip('\r')
+        line = filterLine(sys.stdin.readline())
+        # .rstrip('\n').rstrip('\r')
         splitted = line.split(",")
         jsonData = None
         if ((len(splitted) == 7) and (splitted[0] != 'Station MAC')):
