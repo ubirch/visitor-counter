@@ -82,34 +82,38 @@ macUtil.init(dbPath)
 
 def processStations(splitted):
     mac = splitted[0].strip()
-    manId = macUtil.getMacManufacturerId(mac)
-    manName = macUtil.lookupMac(mac)
-    firstTime = splitted[1].strip()
-    lastTime = splitted[2].strip()
-    power = int(splitted[3].strip())
-    packetsCount = int(splitted[4].strip())
-    BSSID = splitted[5].strip()
-    probedESSIDs = splitted[6].strip()
-    timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-    jsonData = {
-        "uuid": counterId,
-        "msg_type": 66,
-        "timestamp": timestamp,
-        "data": {
+    if(mac.startswith(":")):
+        logger.warning("got invalid MAC: {}".format(mac))
+        return None
+    else:
+        manId = macUtil.getMacManufacturerId(mac)
+        manName = macUtil.lookupMac(mac)
+        firstTime = splitted[1].strip()
+        lastTime = splitted[2].strip()
+        power = int(splitted[3].strip())
+        packetsCount = int(splitted[4].strip())
+        BSSID = splitted[5].strip()
+        probedESSIDs = splitted[6].strip()
+        timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        jsonData = {
+            "uuid": counterId,
             "msg_type": 66,
-            "mac": mac,
-            "macHashed": macUtil.hashedMac(mac),
-            "manId": manId,
-            "manName": manName,
-            "firstTime": firstTime,
-            "lastTime": lastTime,
-            "power": power,
-            "packetsCount": packetsCount,
-            "BSSID": BSSID,
-            "probedESSIDs": probedESSIDs
+            "timestamp": timestamp,
+            "data": {
+                "msg_type": 66,
+                "mac": mac,
+                "macHashed": macUtil.hashedMac(mac),
+                "manId": manId,
+                "manName": manName,
+                "firstTime": firstTime,
+                "lastTime": lastTime,
+                "power": power,
+                "packetsCount": packetsCount,
+                "BSSID": BSSID,
+                "probedESSIDs": probedESSIDs
+            }
         }
-    }
-    return jsonData
+        return jsonData
 
 
 def processBssids(splitted):

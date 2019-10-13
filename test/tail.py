@@ -1,7 +1,7 @@
 
 import subprocess
 
-filename = "../data/crackdump-02.csv"
+filename = "../data/crackdump-01.csv"
 
 def filterLine(line):
     filteredLine = ""
@@ -10,8 +10,19 @@ def filterLine(line):
             filteredLine = filteredLine + c
     return filteredLine
 
-with open(filename, 'r') as reader:
-    for line in reader.readlines():
-        fline = filterLine(line)
-        if(len(fline)>0):
-            print(fline)
+def readlines():
+    with open(filename, 'r') as reader:
+        for line in reader.readlines():
+            fline = filterLine(line)
+            if(len(fline)>0):
+                print(fline)
+
+def read():
+    try:
+        with open(filename, 'r') as reader:
+            while True:
+                print(reader.readline())
+    except KeyboardInterrupt:
+        exit(1)
+
+read()
