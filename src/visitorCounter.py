@@ -217,7 +217,7 @@ while 1:
         elif ((len(splitted) == 15) and (splitted[0] != 'BSSID')):
             jsonData = processBssids(splitted)
         elif (line != None and line > ""):
-            logger.error("invalid data: {}".format(splitted))
+            logger.error("invalid data: {}".format(line))
 
         if (jsonData != None and dryRun == False):
             postJsonData(jsonData)
