@@ -93,7 +93,7 @@ def processStations(splitted):
         power = int(splitted[3].strip())
         packetsCount = int(splitted[4].strip())
         BSSID = splitted[5].strip()
-        probedESSIDs = splitted[6].strip()
+        probedESSIDs = splitted[:6].strip()
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         jsonData = {
             "uuid": counterId,
@@ -208,7 +208,7 @@ while 1:
         # .rstrip('\n').rstrip('\r')
         splitted = line.split(",")
         jsonData = None
-        if ((len(splitted) == 7) and (splitted[0] != 'Station MAC')):
+        if ((len(splitted) != 15) and (splitted[0] != 'Station MAC')):
             jsonData = processStations(splitted)
             if (jsonData['data']['probedESSIDs'] > ""):
                 probedEssids = jsonData['data']['probedESSIDs']
